@@ -7,6 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.card_adapter.view.*
+import android.content.Intent
+import android.support.v4.content.ContextCompat.startActivity
+
+
 
 /**
  * Created by almantera on 21/09/17.
@@ -23,8 +27,17 @@ class CardAdapter(val newsList: List<News>, val listener: (News) -> Unit) : Recy
             txtTitle.text = news.title
             txtDate.text = news.date
             txtDescription.text = news.description
+            txtCategory.text = news.category
             btnShare.setOnClickListener {
-                
+                val message = "[Info " + txtCategory.text.toString() + "]" +
+                        "\n" + txtTitle.text.toString() + "\n" +
+                        txtDate.text.toString() + "\n\n" +
+                        txtDescription.text.toString()
+                val share = Intent(Intent.ACTION_SEND)
+                share.type = "text/plain"
+                share.putExtra(Intent.EXTRA_TEXT, message)
+
+                itemView.context.startActivity(Intent.createChooser(share, "Share to"))
             }
             setOnClickListener { listener(news) }
         }

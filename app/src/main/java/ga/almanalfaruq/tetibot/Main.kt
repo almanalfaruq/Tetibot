@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
+import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -16,6 +17,7 @@ import org.jsoup.select.Elements
 class Main : AppCompatActivity(), AnkoLogger {
 
     private val newsList : ArrayList<News> = ArrayList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -23,11 +25,24 @@ class Main : AppCompatActivity(), AnkoLogger {
         recView.adapter = CardAdapter(newsList) {
             toast("${it.title} Clicked")
         }
+
         doAsync {
             var list = RetriveInformation()
             uiThread {
                 newsList.addAll(list)
                 recView.adapter.notifyDataSetChanged()
+            }
+        }
+        refLayout.setOnRefreshListener {
+            doAsync {
+                var list = RetriveInformation()
+                uiThread {
+                    info("test")
+                    newsList.clear()
+                    newsList.addAll(list)
+                    recView.adapter.notifyDataSetChanged()
+                    refLayout.setRefreshing(false)
+                }
             }
         }
 
