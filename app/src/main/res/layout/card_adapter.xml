@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingBottom="14dp"
+        android:paddingBottom="11dp"
         android:paddingEnd="12dp"
         android:paddingStart="12dp"
         android:paddingTop="11dp">
@@ -55,9 +55,17 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="4"
-            android:paddingBottom="5dp"
             android:paddingTop="5dp"
             android:text="asdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdvvasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdvvasdadasdasdasdasdasdasdasdasdasdasdasd" />
+
+        <Button
+            android:id="@+id/btnShare"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="right"
+            android:background="@drawable/button_card_view"
+            android:text="SHARE"
+            android:textColor="@color/colorButtonShare" />
 
 
     </LinearLayout>

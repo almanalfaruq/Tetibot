@@ -1,5 +1,5 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!--<item android:state_focused="true" android:color="@color/colorKuningGelap" />-->
     <!--<item android:state_pressed="true" android:color="@color/colorKuningGelap" />-->
-    <item android:drawable="@color/colorPrimary"/>
+    <item android:drawable="@color/colorButtonShare" />
 </selector>
