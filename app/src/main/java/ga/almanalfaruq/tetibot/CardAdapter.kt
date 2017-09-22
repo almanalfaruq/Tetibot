@@ -1,15 +1,12 @@
 package ga.almanalfaruq.tetibot
 
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import kotlinx.android.synthetic.main.card_adapter.view.*
 import android.content.Intent
-import android.support.v4.content.ContextCompat.startActivity
-
+import android.support.v4.content.ContextCompat
 
 
 /**
@@ -28,6 +25,9 @@ class CardAdapter(val newsList: List<News>, val listener: (News) -> Unit) : Recy
             txtDate.text = news.date
             txtDescription.text = news.description
             txtCategory.text = news.category
+            if (txtCategory.text.toString().equals("Akademik")) {
+                txtCategory.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.colorBiru))
+            }
             btnShare.setOnClickListener {
                 val message = "[Info " + txtCategory.text.toString() + "]" +
                         "\n" + txtTitle.text.toString() + "\n" +
