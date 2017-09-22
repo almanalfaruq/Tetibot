@@ -25,6 +25,19 @@
         app:umanoParallaxOffset="100dp"
         app:umanoShadowHeight="4dp">
 
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/refLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical" />
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
         <LinearLayout
             android:id="@+id/dragView"
             android:layout_width="match_parent"
@@ -84,19 +97,6 @@
             </FrameLayout>
 
         </LinearLayout>
-
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/refLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="vertical" />
-
-        </android.support.v4.widget.SwipeRefreshLayout>
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
