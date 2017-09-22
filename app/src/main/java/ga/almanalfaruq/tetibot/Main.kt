@@ -4,6 +4,7 @@ import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
@@ -14,14 +15,11 @@ import org.jsoup.select.Elements
 
 class Main : AppCompatActivity(), AnkoLogger {
 
-//    private var news : News = null!!
-//    private var doc : Document = null!!
-//    private var news : News? = null
     private val newsList : ArrayList<News> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        recView.layoutManager = LinearLayoutManager(this)
+        recView.layoutManager = GridLayoutManager(this, 1)
         recView.adapter = CardAdapter(newsList) {
             toast("${it.title} Clicked")
         }
@@ -39,7 +37,7 @@ class Main : AppCompatActivity(), AnkoLogger {
         var news : ArrayList<News> = ArrayList()
         try {
             info("Called")
-            val doc : Document = Jsoup.connect("http://sarjana.jteti.ugm.ac.id/akademik/pengumuman-akademik/").get()
+            val doc : Document = Jsoup.connect("http://sarjana.jteti.ugm.ac.id/akademik/").get()
             // Select table with 5 elements
             val tableRow : Elements = doc.select("table.table-pad > tbody > tr")
             // Select b inside table for the title
