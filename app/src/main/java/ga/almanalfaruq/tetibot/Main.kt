@@ -3,9 +3,11 @@ package ga.almanalfaruq.tetibot
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
+import android.view.View
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
+import org.jetbrains.anko.support.v4.slidingPaneLayout
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -17,9 +19,23 @@ class Main : AppCompatActivity(), AnkoLogger {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+        sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener{
+            override fun onPanelSlide(panel: View?, slideOffset: Float) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onPanelStateChanged(panel: View?, previousState: SlidingUpPanelLayout.PanelState?, newState: SlidingUpPanelLayout.PanelState?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })
         recView.layoutManager = GridLayoutManager(this, 1)
         recView.adapter = CardAdapter(newsList) {
-            toast("${it.title} Clicked")
+//            toast("${it.title}")
+            txtSliderTitle.text = "${it.category}"
+            txtArticle.text = "${it.title}\n${it.date}\n\n${it.description}"
+            sliding_layout.panelState = SlidingUpPanelLayout.PanelState.EXPANDED
         }
 
         doAsync {
@@ -37,7 +53,7 @@ class Main : AppCompatActivity(), AnkoLogger {
                     newsList.clear()
                     newsList.addAll(list)
                     recView.adapter.notifyDataSetChanged()
-                    refLayout.setRefreshing(false)
+                    refLayout.isRefreshing = false
                 }
             }
         }
