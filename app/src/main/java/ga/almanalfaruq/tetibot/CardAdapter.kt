@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.card_adapter.view.*
 class CardAdapter(val newsList: List<News>, val listener: (News) -> Unit) : RecyclerView.Adapter<CardAdapter.MyHolder>() {
     override fun getItemCount(): Int = newsList.size
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = MyHolder(LayoutInflater.from(parent.context).inflate(R.layout.card_adapter, null))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = MyHolder(LayoutInflater.from(parent.context).inflate(R.layout.card_adapter, parent, false))
 
     override fun onBindViewHolder(holder: MyHolder, position: Int) = holder.bind(newsList[position], listener)
 
