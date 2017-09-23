@@ -1,8 +1,9 @@
 # TETIBOT - [Link Download APK](https://github.com/almanalfaruq/Tetibot/releases/)
 ## Bukan Bot-nya TETI
 ## Deskripsi singkat
-<img src="https://github.com/almanalfaruq/Tetibot/blob/master/screenshot/Home.png " alt="Home Screen" width="200">
-<img src="https://github.com/almanalfaruq/Tetibot/blob/master/screenshot/Click%20card%20view.png " alt="Clicked card view" width="200">
+<img src="https://github.com/almanalfaruq/Tetibot/blob/master/screenshot/Home.png " alt="Home Screen" width="200"><img src="https://github.com/almanalfaruq/Tetibot/blob/master/screenshot/Click%20card%20view.png " alt="Clicked card view" width="200">
+
+
 ---
 Project buat belajar bahasa kotlin sekalian bikin aplikasi yang sedikit berguna buat mahasiswanya TETI biar ga usah buka web akademik lagi buat ngecek pengumuman. Kalo mau coba-coba clone aja. Kalo mau kontribusi sangat diperbolehkan, fork aja oke?
 ## Implementasi kedepan
