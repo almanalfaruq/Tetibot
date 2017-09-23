@@ -33,7 +33,7 @@ class Main : AppCompatActivity(), AnkoLogger {
         sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
         sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener{
             override fun onPanelSlide(panel: View?, slideOffset: Float) {
-                
+
             }
 
             override fun onPanelStateChanged(panel: View?, previousState: SlidingUpPanelLayout.PanelState?, newState: SlidingUpPanelLayout.PanelState?) {
