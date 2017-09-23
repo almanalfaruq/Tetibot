@@ -33,7 +33,7 @@ class Main : AppCompatActivity(), AnkoLogger {
         sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
         sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener{
             override fun onPanelSlide(panel: View?, slideOffset: Float) {
-//
+
             }
 
             override fun onPanelStateChanged(panel: View?, previousState: SlidingUpPanelLayout.PanelState?, newState: SlidingUpPanelLayout.PanelState?) {
@@ -45,7 +45,6 @@ class Main : AppCompatActivity(), AnkoLogger {
         })
         recView.layoutManager = GridLayoutManager(this, 1)
         recView.adapter = CardAdapter(newsList) {
-//            toast("${it.title}")
             txtSliderTitle.text = it.category
             txtTitleSlide.text = it.title
             txtDateSlide.text = it.date
@@ -56,21 +55,28 @@ class Main : AppCompatActivity(), AnkoLogger {
         doAsync {
             list = UpdateService.RetriveInformation()
             uiThread {
-                newsList.addAll(list)
-                recView.adapter.notifyDataSetChanged()
-                UpdateService.setRecurringAlarm(context, list.get(0))
+                if (list.size > 0 ) {
+                    newsList.addAll(list)
+                    recView.adapter.notifyDataSetChanged()
+                    UpdateService.setRecurringAlarm(context, list[0])
+                } else {
+                    toast("Cannot reach to the server, try again in few second")
+                }
             }
         }
         refLayout.setOnRefreshListener {
             doAsync {
                 list = UpdateService.RetriveInformation()
                 uiThread {
-                    info("test")
-                    newsList.clear()
-                    newsList.addAll(list)
-                    recView.adapter.notifyDataSetChanged()
-                    refLayout.isRefreshing = false
-                    UpdateService.setRecurringAlarm(context, list.get(0))
+                    if (list.size > 0) {
+                        newsList.clear()
+                        newsList.addAll(list)
+                        recView.adapter.notifyDataSetChanged()
+                        refLayout.isRefreshing = false
+                        UpdateService.setRecurringAlarm(context, list[0])
+                    } else {
+                        toast("Cannot reach to the server, try again in few second")
+                    }
                 }
             }
         }
