@@ -11,7 +11,9 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import android.graphics.Color
 import android.os.Build
+import android.os.Parcelable
 import android.util.Log
+import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
 import java.util.*
 
@@ -33,7 +35,8 @@ class UpdateService : IntentService("Update-Service") {
     }
 
     override fun onHandleIntent(intent: Intent) {
-        var temp = intent.getSerializableExtra("news") as News
+        val btTemp = intent.getByteArrayExtra("news")
+        var temp = ParcelableUtil.unmarshall(btTemp, News)
         doAsync {
             val list = RetriveInformation()
             uiThread {
@@ -42,8 +45,11 @@ class UpdateService : IntentService("Update-Service") {
                         sendNotification(context)
                         temp = list.get(0)
                     }
+                    setRecurringAlarm(context, temp)
+                } else {
+                    toast("Cannot reach to the server, try to connect again")
+                    setRecurringAlarm(context, temp)
                 }
-                setRecurringAlarm(context, temp)
             }
         }
     }
@@ -94,7 +100,9 @@ class UpdateService : IntentService("Update-Service") {
             updateTime.setTimeZone(TimeZone.getDefault())
             updateTime.add(Calendar.MINUTE, 10)
             val downloader = Intent(context, UpdateReceiver::class.java)
-            downloader.putExtra("news", news)
+            val pcNews = ParcelableUtil.marshall(news)
+            downloader.putExtra("news", pcNews)
+            Log.d(TAG, news.title)
             downloader.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
             val pendingIntent = PendingIntent.getBroadcast(context, 0, downloader, PendingIntent.FLAG_CANCEL_CURRENT)
