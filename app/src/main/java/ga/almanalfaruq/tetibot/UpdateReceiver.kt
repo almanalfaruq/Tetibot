@@ -14,9 +14,7 @@ class UpdateReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val dailyUpdater = Intent(context, UpdateService::class.java)
         val btNews = intent.getByteArrayExtra("news")
-        val news = ParcelableUtil.unmarshall(btNews, News)
-        Log.d("Receiver", news.title)
-        dailyUpdater.putExtra("news", news)
+        dailyUpdater.putExtra("news", btNews)
         context.startService(dailyUpdater)
         Log.d("Receiver: ", "Service started")
     }
