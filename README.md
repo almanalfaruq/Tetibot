@@ -1,6 +1,7 @@
 # TETIBOT - [Link Download APK](https://github.com/almanalfaruq/Tetibot/releases/)
 ## Bukan Bot-nya TETI
 ## Deskripsi singkat
+<img src="https://github.com/almanalfaruq/Tetibot/blob/master/screenshot/Home.png " alt="Home Screen" width="200">
 ![alt text](https://github.com/almanalfaruq/Tetibot/blob/master/screenshot/Home.png "Home Screen")
 ![alt text](https://github.com/almanalfaruq/Tetibot/blob/master/screenshot/Click%20card%20view.png "Clicked card view")
 ---
