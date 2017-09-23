@@ -19,6 +19,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".UpdateService"
+            android:exported="false"/>
+        <receiver android:name=".UpdateReceiver"/>
     </application>
 
 </manifest>
