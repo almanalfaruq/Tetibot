@@ -13,9 +13,11 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import android.app.AlarmManager
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import com.firebase.jobdispatcher.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -23,13 +25,12 @@ import kotlin.collections.ArrayList
 class Main : AppCompatActivity(), AnkoLogger {
 
     private val newsList : ArrayList<News> = ArrayList()
-    private lateinit var list : ArrayList<News>
-    private lateinit var context : Context
+    private var list : ArrayList<News> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        context = this
+        val helper = Helper();
         sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
         sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener{
             override fun onPanelSlide(panel: View?, slideOffset: Float) {
@@ -43,7 +44,7 @@ class Main : AppCompatActivity(), AnkoLogger {
             }
 
         })
-        recView.layoutManager = GridLayoutManager(this, 1)
+        recView.layoutManager = GridLayoutManager(this, 1) as RecyclerView.LayoutManager?
         recView.adapter = CardAdapter(newsList) {
             txtSliderTitle.text = it.category
             txtTitleSlide.text = it.title
@@ -53,12 +54,11 @@ class Main : AppCompatActivity(), AnkoLogger {
         }
 
         doAsync {
-            list = UpdateService.RetriveInformation()
+            list = helper.RetriveInformation()
             uiThread {
                 if (list.size > 0 ) {
                     newsList.addAll(list)
                     recView.adapter.notifyDataSetChanged()
-                    UpdateService.setRecurringAlarm(context, list[0])
                 } else {
                     toast("Cannot reach to the server, try again in few second")
                 }
@@ -66,20 +66,69 @@ class Main : AppCompatActivity(), AnkoLogger {
         }
         refLayout.setOnRefreshListener {
             doAsync {
-                list = UpdateService.RetriveInformation()
+                list = helper.RetriveInformation()
                 uiThread {
                     if (list.size > 0) {
                         newsList.clear()
                         newsList.addAll(list)
                         recView.adapter.notifyDataSetChanged()
                         refLayout.isRefreshing = false
-                        UpdateService.setRecurringAlarm(context, list[0])
                     } else {
                         toast("Cannot reach to the server, try again in few second")
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        fun startJobScheduler(context: Context, tempNews: ArrayList<News>) {
+            val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(context))
+            val bundle = Bundle()
+            if (tempNews.size > 0) {
+                bundle.putString("tempNewsId", tempNews[0].id)
+            } else {
+                bundle.putString("tempNewsId", null)
+            }
+            val job = createJob(dispatcher, bundle)
+            dispatcher.mustSchedule(job)
+        }
+
+        fun createJob(dispatcher: FirebaseJobDispatcher, bundle: Bundle): Job {
+            val job : Job = dispatcher.newJobBuilder()
+                    .setLifetime(Lifetime.FOREVER)
+                    .setService(UpdateService::class.java)
+                    .setTag("job_tetibot")
+                    .setReplaceCurrent(true)
+                    .setTrigger(Trigger.executionWindow(900, 1800))
+                    .setConstraints(Constraint.ON_ANY_NETWORK)
+                    .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
+                    .setExtras(bundle)
+                    .build()
+            return job
+        }
+
+        fun cancelJob(context: Context) {
+            val dispatcher : FirebaseJobDispatcher = FirebaseJobDispatcher(GooglePlayDriver(context))
+            dispatcher.cancelAll()
+            dispatcher.cancel("job_tetibot")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val notification = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notification.cancelAll()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        startJobScheduler(this, list)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        startJobScheduler(this, list)
     }
 
     override fun onBackPressed() {

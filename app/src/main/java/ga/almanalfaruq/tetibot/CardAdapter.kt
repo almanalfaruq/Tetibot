@@ -19,8 +19,17 @@ class CardAdapter(val newsList: List<News>, val listener: (News) -> Unit) : Recy
 
     override fun onBindViewHolder(holder: MyHolder, position: Int) = holder.bind(newsList[position], listener)
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
     class MyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(news: News, listener: (News) -> Unit) = with(itemView) {
+            txtId.text = news.id
             txtTitle.text = news.title
             txtDate.text = news.date
             txtDescription.text = news.description

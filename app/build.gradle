@@ -34,7 +34,9 @@ dependencies {
     implementation 'org.jetbrains.anko:anko:0.10.1'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     // jsoup HTML parser library @ https://jsoup.org/
-    implementation 'org.jsoup:jsoup:1.10.3'
+    implementation 'org.jsoup:jsoup:1.11.2'
+    // JobDispathcer by Firebase for API 9+
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
