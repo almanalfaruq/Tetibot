@@ -13,12 +13,15 @@ Project buat belajar bahasa kotlin sekalian bikin aplikasi yang sedikit berguna 
 * Share detail pemberitahuan secara langsung
 
 ## Cara kontribusi
+* Cara belajar
 1. Fork github ini
 2. Clone github
 3. Buat branch baru untuk fitur baru atau bug fix
 4. Tambahkan beberapa perubahan
 5. Commit lalu push
 6. Submit pull requestmu
+* Cara mudah
+1. Hubungi line saya jika ada masukan lebih lanjut mengenai aplikasi. ID : `almanalfaruq`
 
 ## Dikembangkan oleh
 * [Almantera Tiantana Al Faruqi](https://www.instagram.com/almanalfaruq/ "IG-nya Alman")
