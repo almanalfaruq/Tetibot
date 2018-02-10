@@ -1,5 +1,7 @@
-package ga.almanalfaruq.tetibot
+package ga.almanalfaruq.tetibot.helper
 
+import android.util.Log
+import ga.almanalfaruq.tetibot.model.News
 import org.jsoup.Jsoup
 import java.util.ArrayList
 
@@ -9,7 +11,7 @@ import java.util.ArrayList
 class Helper {
 
     fun RetriveInformation(): ArrayList<News> {
-        var news : ArrayList<News> = ArrayList()
+        val news : ArrayList<News> = ArrayList()
         try {
             val doc = Jsoup.connect("http://sarjana.jteti.ugm.ac.id/akademik/").get()
             // Select table with 5 elements
@@ -17,7 +19,8 @@ class Helper {
             // Select td inside table that equal to 2nd index
             val indexBody = tableRow.select("td:eq(2)")
             for (row in indexBody) {
-                val id = row.id()
+                val id = row.parents().first().id()
+                Log.d("Helper", id)
                 val body = row.text().split(" ")
                 val title = row.select("b").text()
                 val category = row.select("span.label").text()
@@ -25,6 +28,7 @@ class Helper {
                 var date = ""
                 val titleSize = title.split(" ").size
                 var x = 4 + titleSize
+                var href = row.select("a.btn").attr("href")
                 while (x < body.size) {
                     desc += body[x] + " "
                     x++
@@ -34,10 +38,17 @@ class Helper {
                     date += body[x] + " "
                     x++
                 }
-                news.add(News(id, title, category, desc, date))
+                if (!href.isEmpty()) {
+                    desc = desc.dropLast(9)
+                    href = "http://sarjana.jteti.ugm.ac.id" + href
+                } else {
+                    href = ""
+                }
+                news.add(News(id, title, category, desc, date, href))
             }
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
+            news.clear()
         }
         return news
     }

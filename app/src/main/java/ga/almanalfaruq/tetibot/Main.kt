@@ -8,17 +8,14 @@ import android.view.View
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
-import org.jetbrains.anko.support.v4.slidingPaneLayout
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.select.Elements
-import android.app.AlarmManager
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import com.firebase.jobdispatcher.*
-import java.util.*
+import ga.almanalfaruq.tetibot.adapter.CardAdapter
+import ga.almanalfaruq.tetibot.helper.Helper
+import ga.almanalfaruq.tetibot.helper.SessionManager
+import ga.almanalfaruq.tetibot.model.News
+import ga.almanalfaruq.tetibot.service.UpdateService
 import kotlin.collections.ArrayList
 
 
@@ -30,7 +27,7 @@ class Main : AppCompatActivity(), AnkoLogger {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val helper = Helper();
+        val helper = Helper()
         sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
         sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener{
             override fun onPanelSlide(panel: View?, slideOffset: Float) {
@@ -84,17 +81,15 @@ class Main : AppCompatActivity(), AnkoLogger {
     companion object {
         fun startJobScheduler(context: Context, tempNews: ArrayList<News>) {
             val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(context))
-            val bundle = Bundle()
+            val sessionManager = SessionManager(context)
             if (tempNews.size > 0) {
-                bundle.putString("tempNewsId", tempNews[0].id)
-            } else {
-                bundle.putString("tempNewsId", null)
+                sessionManager.setOldNews(tempNews[0].id.toInt())
             }
-            val job = createJob(dispatcher, bundle)
+            val job = createJob(dispatcher)
             dispatcher.mustSchedule(job)
         }
 
-        fun createJob(dispatcher: FirebaseJobDispatcher, bundle: Bundle): Job {
+        fun createJob(dispatcher: FirebaseJobDispatcher): Job {
             val job : Job = dispatcher.newJobBuilder()
                     .setLifetime(Lifetime.FOREVER)
                     .setService(UpdateService::class.java)
@@ -103,15 +98,8 @@ class Main : AppCompatActivity(), AnkoLogger {
                     .setTrigger(Trigger.executionWindow(900, 1800))
                     .setConstraints(Constraint.ON_ANY_NETWORK)
                     .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
-                    .setExtras(bundle)
                     .build()
             return job
-        }
-
-        fun cancelJob(context: Context) {
-            val dispatcher : FirebaseJobDispatcher = FirebaseJobDispatcher(GooglePlayDriver(context))
-            dispatcher.cancelAll()
-            dispatcher.cancel("job_tetibot")
         }
     }
 

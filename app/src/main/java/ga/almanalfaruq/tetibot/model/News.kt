@@ -1,18 +1,16 @@
-package ga.almanalfaruq.tetibot
+package ga.almanalfaruq.tetibot.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.Log
-import org.jsoup.Jsoup
-import java.io.Serializable
-import java.util.ArrayList
 
 /**
  * Created by almantera on 19/09/17.
  */
 
-data class News(var id: String, var title: String, var category: String, var description: String, var date: String) : Parcelable  {
+data class News(var id: String, var title: String, var category: String, var description: String, var date: String, var url: String = "") : Parcelable  {
+
     constructor(parcel: Parcel) : this(
+            parcel.readString(),
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
@@ -25,6 +23,7 @@ data class News(var id: String, var title: String, var category: String, var des
         parcel.writeString(category)
         parcel.writeString(description)
         parcel.writeString(date)
+        parcel.writeString(url)
     }
 
     override fun describeContents(): Int = 0

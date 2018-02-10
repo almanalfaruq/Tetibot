@@ -64,14 +64,28 @@
             android:paddingTop="5dp"
             android:text="asdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdvvasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdasdadasdasdasdasdasdasdasdasdasdasdasdvvasdadasdasdasdasdasdasdasdasdasdasdasd" />
 
-        <Button
-            android:id="@+id/btnShare"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_gravity="right"
-            android:background="@drawable/button_card_view"
-            android:text="SHARE"
-            android:textColor="@color/colorButtonShare" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="right">
+            <Button
+                android:id="@+id/btnDownload"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/button_card_view"
+                android:text="DOWNLOAD"
+                android:textColor="@color/colorButtonDownload" />
+
+            <Button
+                android:id="@+id/btnShare"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:background="@drawable/button_card_view"
+                android:text="SHARE"
+                android:textColor="@color/colorButtonShare" />
+
+        </LinearLayout>
 
 
     </LinearLayout>

@@ -8,4 +8,5 @@
     <color name="colorAbu">#F5F5F5</color>
     <color name="colorPutih">#ffffff</color>
     <color name="colorButtonShare">#00AD04</color>
+    <color name="colorButtonDownload">#ff5100</color>
 </resources>

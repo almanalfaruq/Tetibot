@@ -1,4 +1,4 @@
-package ga.almanalfaruq.tetibot
+package ga.almanalfaruq.tetibot.adapter
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -6,7 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.card_adapter.view.*
 import android.content.Intent
+import android.net.Uri
 import android.support.v4.content.ContextCompat
+import ga.almanalfaruq.tetibot.R
+import ga.almanalfaruq.tetibot.model.News
 
 
 /**
@@ -34,6 +37,14 @@ class CardAdapter(val newsList: List<News>, val listener: (News) -> Unit) : Recy
             txtDate.text = news.date
             txtDescription.text = news.description
             txtCategory.text = news.category
+            if (news.url == "") {
+                btnDownload.visibility = View.GONE
+            } else {
+                btnDownload.setOnClickListener {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(news.url))
+                    itemView.context.startActivity(browserIntent)
+                }
+            }
             if (txtCategory.text.toString().equals("Akademik")) {
                 txtCategory.setBackgroundColor(ContextCompat.getColor(itemView.context, R.color.colorBiru))
             }

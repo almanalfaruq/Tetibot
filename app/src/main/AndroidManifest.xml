@@ -9,7 +9,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/uwong"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/uwong"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Main">
@@ -20,9 +20,8 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".UpdateService"
+            android:name=".service.UpdateService"
             android:exported="false"/>
-        <receiver android:name=".UpdateReceiver"/>
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package ga.almanalfaruq.tetibot
+package ga.almanalfaruq.tetibot.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -11,6 +11,9 @@ import android.os.Build
 import android.util.Log
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
+import ga.almanalfaruq.tetibot.Main
+import ga.almanalfaruq.tetibot.helper.Helper
+import ga.almanalfaruq.tetibot.helper.SessionManager
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
@@ -22,6 +25,7 @@ class UpdateService : JobService() {
     }
 
     override fun onStopJob(params: JobParameters?): Boolean {
+        Log.d("UpdateService", "Job stopped")
         return false
     }
 
@@ -30,17 +34,16 @@ class UpdateService : JobService() {
         doAsync {
             val helper = Helper()
             val newNews = helper.RetriveInformation()
-            val tempNewsId = params.extras?.getString("tempNewsId")
+            val sessionManager = SessionManager(this@UpdateService)
+            val tempNewsId = sessionManager.getOldNews().toString()
             uiThread {
                 Log.d("UpdateService", newNews.size.toString())
-                if (tempNewsId != null && newNews.size > 0) {
+                if (newNews.size > 0) {
                     if (!tempNewsId.equals(newNews[0].id, true)) {
                         sendNotification(this@UpdateService)
-                        Log.d("UpdateService", "Same ID")
+                        sessionManager.setOldNews(newNews[0].id.toInt())
+                        Log.d("UpdateService", "Not equals ID")
                     }
-                } else {
-                    sendNotification(this@UpdateService)
-                    Log.d("UpdateService", "No ID")
                 }
                 Log.d("UpdateService", "Job finished")
                 jobFinished(params, true)
@@ -55,27 +58,31 @@ class UpdateService : JobService() {
         val channelId = "channel_tetibot"
         val channelName = "Tetibot Channel"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW)
+            val notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW)
+            } else {
+                TODO("VERSION.SDK_INT < O")
+            }
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
             notificationChannel.enableVibration(true)
             notificationChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
             notificationMgr.createNotificationChannel(notificationChannel)
-            val notification = Notification.Builder(context, channelId)
-                    .setContentTitle("Tetibot")
-                    .setContentText("Update Dari Web Akademik DTETI")
-                    .setSmallIcon(android.R.drawable.star_on)
-                    .setContentIntent(contentIntent)
-                    .build()
-            notification.flags = Notification.FLAG_AUTO_CANCEL
-            notificationMgr.notify(0, notification)
-        } else {
-            val notification = Notification.Builder(context)
-                    .setContentTitle("Tetibot")
-                    .setContentText("Update Dari Web Akademik DTETI")
-                    .setSmallIcon(android.R.drawable.star_on)
-                    .setContentIntent(contentIntent)
-                    .build()
+            val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Notification.Builder(context, channelId)
+                        .setContentTitle("Tetibot")
+                        .setContentText("Update Dari Web Akademik DTETI")
+                        .setSmallIcon(android.R.drawable.star_on)
+                        .setContentIntent(contentIntent)
+                        .build()
+            } else {
+                Notification.Builder(context)
+                        .setContentTitle("Tetibot")
+                        .setContentText("Update Dari Web Akademik DTETI")
+                        .setSmallIcon(android.R.drawable.star_on)
+                        .setContentIntent(contentIntent)
+                        .build()
+            }
             notification.flags = Notification.FLAG_AUTO_CANCEL
             notificationMgr.notify(0, notification)
         }
