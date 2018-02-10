@@ -7,6 +7,11 @@
 ## Deskripsi singkat
 Project buat belajar bahasa kotlin sekalian bikin aplikasi yang sedikit berguna buat mahasiswanya TETI biar ga usah buka web akademik lagi buat ngecek pengumuman. Kalo mau coba-coba clone aja. Kalo mau kontribusi sangat diperbolehkan, fork aja oke?
 
+## Fitur
+* Notifikasi otomatis pembaruan website (butuh feedback dari kamu)
+* Download file langsung dari aplikasi (dibuka melalui aplikasi pihak ke-3, misalnya google chrome)
+* Share detail pemberitahuan secara langsung
+
 ## Cara kontribusi
 1. Fork github ini
 2. Clone github
