@@ -29,6 +29,7 @@ class Main : AppCompatActivity(), AnkoLogger {
         setContentView(R.layout.activity_main)
         val helper = Helper()
         sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+        // If the panel slide down
         sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener{
             override fun onPanelSlide(panel: View?, slideOffset: Float) {
 
@@ -49,7 +50,7 @@ class Main : AppCompatActivity(), AnkoLogger {
             txtDescriptionSlide.text = it.description
             sliding_layout.panelState = SlidingUpPanelLayout.PanelState.EXPANDED
         }
-
+        // Get the data from web
         doAsync {
             list = helper.RetriveInformation()
             uiThread {
@@ -57,10 +58,11 @@ class Main : AppCompatActivity(), AnkoLogger {
                     newsList.addAll(list)
                     recView.adapter.notifyDataSetChanged()
                 } else {
-                    toast("Cannot reach to the server, try again in few second")
+                    toast("Cannot reach to the server, try again in a few second")
                 }
             }
         }
+        // Swipe refresh code
         refLayout.setOnRefreshListener {
             doAsync {
                 list = helper.RetriveInformation()
@@ -71,7 +73,7 @@ class Main : AppCompatActivity(), AnkoLogger {
                         recView.adapter.notifyDataSetChanged()
                         refLayout.isRefreshing = false
                     } else {
-                        toast("Cannot reach to the server, try again in few second")
+                        toast("Cannot reach to the server, try again in a few second")
                     }
                 }
             }
@@ -91,12 +93,19 @@ class Main : AppCompatActivity(), AnkoLogger {
 
         fun createJob(dispatcher: FirebaseJobDispatcher): Job {
             val job : Job = dispatcher.newJobBuilder()
+                    // Set it's lifetime
                     .setLifetime(Lifetime.FOREVER)
+                    // What's the class it should use to create the job
                     .setService(UpdateService::class.java)
+                    // Set tag to identify it's id
                     .setTag("job_tetibot")
+                    // If there is another job created with the same tag, it will be replaced
                     .setReplaceCurrent(true)
+                    // Trigger the job between 900-1800 seconds (10-30 minutes)
                     .setTrigger(Trigger.executionWindow(900, 1800))
+                    // Start the job if there's a network connection
                     .setConstraints(Constraint.ON_ANY_NETWORK)
+                    // How the job retrying it's job (?) -> 30s, 60s, 90s, 120s, etc.
                     .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
                     .build()
             return job
@@ -105,21 +114,25 @@ class Main : AppCompatActivity(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
+        // Clear notification if resume the app
         val notification = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notification.cancelAll()
     }
 
     override fun onStop() {
         super.onStop()
+        // Start the job scheduler if application stoped
         startJobScheduler(this, list)
     }
 
     override fun onPause() {
         super.onPause()
+        // Start the job scheduler if application paused
         startJobScheduler(this, list)
     }
 
     override fun onBackPressed() {
+        // If back pressed when slider is expanded, the hide the slider
         if (sliding_layout.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
             sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
         } else {

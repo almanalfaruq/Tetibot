@@ -32,6 +32,7 @@ class UpdateService : JobService() {
     private fun checkUpdate(params: JobParameters) {
         Log.d("UpdateService", "Job started")
         doAsync {
+            // Get the newest news from the web
             val helper = Helper()
             val newNews = helper.RetriveInformation()
             val sessionManager = SessionManager(this@UpdateService)
@@ -51,6 +52,7 @@ class UpdateService : JobService() {
         }
     }
 
+    // Creating the notification
     private fun sendNotification(context: Context) {
         val notificationIntent = Intent(context, Main::class.java)
         val contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0)
@@ -70,19 +72,28 @@ class UpdateService : JobService() {
             notificationMgr.createNotificationChannel(notificationChannel)
             val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 Notification.Builder(context, channelId)
+                        // Notification title
                         .setContentTitle("Tetibot")
+                        // Notification description
                         .setContentText("Update Dari Web Akademik DTETI")
+                        // Notification icon
                         .setSmallIcon(android.R.drawable.star_on)
+                        // Notification intent -> open the apps
                         .setContentIntent(contentIntent)
                         .build()
             } else {
                 Notification.Builder(context)
+                        // Notification title
                         .setContentTitle("Tetibot")
+                        // Notification description
                         .setContentText("Update Dari Web Akademik DTETI")
+                        // Notification icon
                         .setSmallIcon(android.R.drawable.star_on)
+                        // Notification intent -> open the apps
                         .setContentIntent(contentIntent)
                         .build()
             }
+            // Clear the notification if the notification clicked
             notification.flags = Notification.FLAG_AUTO_CANCEL
             notificationMgr.notify(0, notification)
         }

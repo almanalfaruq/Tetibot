@@ -19,8 +19,8 @@ class Helper {
             // Select td inside table that equal to 2nd index
             val indexBody = tableRow.select("td:eq(2)")
             for (row in indexBody) {
+                // Get every detail from the parent
                 val id = row.parents().first().id()
-                Log.d("Helper", id)
                 val body = row.text().split(" ")
                 val title = row.select("b").text()
                 val category = row.select("span.label").text()
