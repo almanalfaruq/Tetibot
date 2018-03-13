@@ -53,7 +53,7 @@ class UpdateService : JobService() {
         }
     }
 
-    // Creating the notification
+    // Send the notification to phone
     private fun sendNotification(context: Context) {
         val notificationIntent = Intent(context, Main::class.java)
         val contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0)
@@ -72,6 +72,7 @@ class UpdateService : JobService() {
         notificationMgr.notify(0, notification)
     }
 
+    // Used for creating notification channel in API >= 26
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel(channelId: String, channelName: String,
                                           notificationMgr: NotificationManager) {
@@ -87,6 +88,7 @@ class UpdateService : JobService() {
         notificationMgr.createNotificationChannel(notificationChannel)
     }
 
+    // Used for creating notification in API >= 26
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationOreo(context: Context, channelId: String,
                                        contentIntent: PendingIntent): Notification {
@@ -102,6 +104,7 @@ class UpdateService : JobService() {
                 .build()
     }
 
+    // Used for creating notification in API < 26
     private fun createNotification(context: Context,
                                    contentIntent: PendingIntent): Notification {
         return Notification.Builder(context)
