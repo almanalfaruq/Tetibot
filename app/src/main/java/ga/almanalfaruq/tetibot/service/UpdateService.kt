@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
+import android.support.annotation.RequiresApi
 import android.util.Log
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
@@ -52,7 +53,7 @@ class UpdateService : JobService() {
         }
     }
 
-    // Creating the notification
+    // Send the notification to phone
     private fun sendNotification(context: Context) {
         val notificationIntent = Intent(context, Main::class.java)
         val contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0)
@@ -60,42 +61,61 @@ class UpdateService : JobService() {
         val channelId = "channel_tetibot"
         val channelName = "Tetibot Channel"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW)
-            } else {
-                TODO("VERSION.SDK_INT < O")
-            }
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
-            notificationChannel.enableVibration(true)
-            notificationChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
-            notificationMgr.createNotificationChannel(notificationChannel)
-            val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Notification.Builder(context, channelId)
-                        // Notification title
-                        .setContentTitle("Tetibot")
-                        // Notification description
-                        .setContentText("Update Dari Web Akademik DTETI")
-                        // Notification icon
-                        .setSmallIcon(android.R.drawable.star_on)
-                        // Notification intent -> open the apps
-                        .setContentIntent(contentIntent)
-                        .build()
-            } else {
-                Notification.Builder(context)
-                        // Notification title
-                        .setContentTitle("Tetibot")
-                        // Notification description
-                        .setContentText("Update Dari Web Akademik DTETI")
-                        // Notification icon
-                        .setSmallIcon(android.R.drawable.star_on)
-                        // Notification intent -> open the apps
-                        .setContentIntent(contentIntent)
-                        .build()
-            }
-            // Clear the notification if the notification clicked
-            notification.flags = Notification.FLAG_AUTO_CANCEL
-            notificationMgr.notify(0, notification)
+            createNotificationChannel(channelId, channelName, notificationMgr)
         }
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationOreo(context, channelId, contentIntent)
+        } else {
+            createNotification(context, contentIntent)
+        }
+        notification.flags = Notification.FLAG_AUTO_CANCEL
+        notificationMgr.notify(0, notification)
+    }
+
+    // Used for creating notification channel in API >= 26
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(channelId: String, channelName: String,
+                                          notificationMgr: NotificationManager) {
+        val notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW)
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+        notificationChannel.enableLights(true)
+        notificationChannel.lightColor = Color.RED
+        notificationChannel.enableVibration(true)
+        notificationChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+        notificationMgr.createNotificationChannel(notificationChannel)
+    }
+
+    // Used for creating notification in API >= 26
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationOreo(context: Context, channelId: String,
+                                       contentIntent: PendingIntent): Notification {
+        return Notification.Builder(context, channelId)
+                // Notification title
+                .setContentTitle("Tetibot")
+                // Notification description
+                .setContentText("Update Dari Web Akademik DTETI")
+                // Notification icon
+                .setSmallIcon(android.R.drawable.star_on)
+                // Notification intent -> open the apps
+                .setContentIntent(contentIntent)
+                .build()
+    }
+
+    // Used for creating notification in API < 26
+    private fun createNotification(context: Context,
+                                   contentIntent: PendingIntent): Notification {
+        return Notification.Builder(context)
+                // Notification title
+                .setContentTitle("Tetibot")
+                // Notification description
+                .setContentText("Update Dari Web Akademik DTETI")
+                // Notification icon
+                .setSmallIcon(android.R.drawable.star_on)
+                // Notification intent -> open the apps
+                .setContentIntent(contentIntent)
+                .build()
     }
 }

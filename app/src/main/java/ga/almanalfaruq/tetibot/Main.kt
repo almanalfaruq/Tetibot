@@ -23,11 +23,27 @@ class Main : AppCompatActivity(), AnkoLogger {
 
     private val newsList : ArrayList<News> = ArrayList()
     private var list : ArrayList<News> = ArrayList()
+    private val helper = Helper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val helper = Helper()
+        settingUpSlidingLayout()
+        settingUpRecyclerView()
+        // Refreshing the refresh layout when first time opened
+        refLayout.isRefreshing = true
+        // Get the data from web
+        doAsync {
+            getDataFromWebsite()
+        }
+        // Swipe refresh code
+        refLayout.setOnRefreshListener {
+            getDataFromWebsite()
+        }
+    }
+
+    // Setting the sliding layout
+    private fun settingUpSlidingLayout() {
         sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
         // If the panel slide down
         sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener{
@@ -42,6 +58,10 @@ class Main : AppCompatActivity(), AnkoLogger {
             }
 
         })
+    }
+
+    // Setting the recycler view
+    private fun settingUpRecyclerView() {
         recView.layoutManager = GridLayoutManager(this, 1) as RecyclerView.LayoutManager?
         recView.adapter = CardAdapter(newsList) {
             txtSliderTitle.text = it.category
@@ -50,37 +70,32 @@ class Main : AppCompatActivity(), AnkoLogger {
             txtDescriptionSlide.text = it.description
             sliding_layout.panelState = SlidingUpPanelLayout.PanelState.EXPANDED
         }
-        // Get the data from web
+    }
+
+    // Get data from website
+    private fun getDataFromWebsite() {
         doAsync {
             list = helper.RetriveInformation()
             uiThread {
-                if (list.size > 0 ) {
-                    newsList.addAll(list)
-                    recView.adapter.notifyDataSetChanged()
+                if (list.size > 0) {
+                    insertDataToRecView()
                 } else {
                     toast("Cannot reach to the server, try again in a few second")
                 }
             }
         }
-        // Swipe refresh code
-        refLayout.setOnRefreshListener {
-            doAsync {
-                list = helper.RetriveInformation()
-                uiThread {
-                    if (list.size > 0) {
-                        newsList.clear()
-                        newsList.addAll(list)
-                        recView.adapter.notifyDataSetChanged()
-                        refLayout.isRefreshing = false
-                    } else {
-                        toast("Cannot reach to the server, try again in a few second")
-                    }
-                }
-            }
-        }
+    }
+
+    // Inserting data from website to recycler view
+    private fun insertDataToRecView() {
+        newsList.clear()
+        newsList.addAll(list)
+        recView.adapter.notifyDataSetChanged()
+        refLayout.isRefreshing = false
     }
 
     companion object {
+        // Starting job scheduler
         fun startJobScheduler(context: Context, tempNews: ArrayList<News>) {
             val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(context))
             val sessionManager = SessionManager(context)
@@ -91,6 +106,7 @@ class Main : AppCompatActivity(), AnkoLogger {
             dispatcher.mustSchedule(job)
         }
 
+        // Creating job scheduler with some configuration
         fun createJob(dispatcher: FirebaseJobDispatcher): Job {
             val job : Job = dispatcher.newJobBuilder()
                     // Set it's lifetime

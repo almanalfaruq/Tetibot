@@ -12,7 +12,7 @@ android {
         minSdkVersion 18
         targetSdkVersion 26
         versionCode 1
-        versionName "1.1.0"
+        versionName "1.1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -20,6 +20,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    androidExtensions {
+        experimental = true
     }
 }
 
@@ -34,7 +37,7 @@ dependencies {
     implementation 'org.jetbrains.anko:anko:0.10.1'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     // jsoup HTML parser library @ https://jsoup.org/
-    implementation 'org.jsoup:jsoup:1.11.2'
+    implementation 'org.jsoup:jsoup:1.10.3'
     // JobDispathcer by Firebase for API 9+
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
     testImplementation 'junit:junit:4.12'
