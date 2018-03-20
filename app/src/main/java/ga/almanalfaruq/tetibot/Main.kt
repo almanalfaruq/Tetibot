@@ -42,8 +42,11 @@ class Main : AppCompatActivity(), AnkoLogger {
 
         settingUpSlidingLayout()
         settingUpRecyclerView()
+
         // Refreshing the refresh layout when first time opened
         refLayout.isRefreshing = true
+
+        getNewsFromDb()
         // Get the data from web
         doAsync {
             getNewsFromWebsite()
@@ -93,7 +96,6 @@ class Main : AppCompatActivity(), AnkoLogger {
                     insertNewsToRecView()
                     insertNewsToDb(list)
                 } else {
-                    getNewsFromDb()
                     toast("Cannot reach to the server, try again in a few second")
                 }
             }
