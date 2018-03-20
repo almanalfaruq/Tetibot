@@ -10,9 +10,12 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.*
 import android.app.NotificationManager
 import android.content.Context
+import android.os.Handler
 import com.firebase.jobdispatcher.*
 import ga.almanalfaruq.tetibot.adapter.CardAdapter
+import ga.almanalfaruq.tetibot.helper.DbWorkerThread
 import ga.almanalfaruq.tetibot.helper.Helper
+import ga.almanalfaruq.tetibot.helper.NewsDatabase
 import ga.almanalfaruq.tetibot.helper.SessionManager
 import ga.almanalfaruq.tetibot.model.News
 import ga.almanalfaruq.tetibot.service.UpdateService
@@ -21,24 +24,33 @@ import kotlin.collections.ArrayList
 
 class Main : AppCompatActivity(), AnkoLogger {
 
-    private val newsList : ArrayList<News> = ArrayList()
-    private var list : ArrayList<News> = ArrayList()
+    private val newsList = ArrayList<News>()
+    private var list = ArrayList<News>()
     private val helper = Helper()
+    private var newsDb: NewsDatabase? = null
+    private lateinit var dbWorkerThread: DbWorkerThread
+    private val uiHandler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        dbWorkerThread = DbWorkerThread("dbWorkerThread")
+        dbWorkerThread.start()
+
+        newsDb = NewsDatabase.getInstance(this)
+
         settingUpSlidingLayout()
         settingUpRecyclerView()
         // Refreshing the refresh layout when first time opened
         refLayout.isRefreshing = true
         // Get the data from web
         doAsync {
-            getDataFromWebsite()
+            getNewsFromWebsite()
         }
         // Swipe refresh code
         refLayout.setOnRefreshListener {
-            getDataFromWebsite()
+            getNewsFromWebsite()
         }
     }
 
@@ -73,13 +85,15 @@ class Main : AppCompatActivity(), AnkoLogger {
     }
 
     // Get data from website
-    private fun getDataFromWebsite() {
+    private fun getNewsFromWebsite() {
         doAsync {
-            list = helper.RetriveInformation()
+            list = helper.retriveNewsFromWebsite()
             uiThread {
                 if (list.size > 0) {
-                    insertDataToRecView()
+                    insertNewsToRecView()
+                    insertNewsToDb(list)
                 } else {
+                    getNewsFromDb()
                     toast("Cannot reach to the server, try again in a few second")
                 }
             }
@@ -87,11 +101,31 @@ class Main : AppCompatActivity(), AnkoLogger {
     }
 
     // Inserting data from website to recycler view
-    private fun insertDataToRecView() {
+    private fun insertNewsToRecView() {
         newsList.clear()
         newsList.addAll(list)
         recView.adapter.notifyDataSetChanged()
         refLayout.isRefreshing = false
+    }
+
+    private fun getNewsFromDb() {
+        val task = Runnable {
+            list = newsDb?.newsDao()?.getAll() as ArrayList<News>
+            uiHandler.post({
+                if (list.isEmpty()) {
+                    toast("Local data is empty, please connect to the internet to fill it")
+                    refLayout.isRefreshing = false
+                } else {
+                    insertNewsToRecView()
+                }
+            })
+        }
+        dbWorkerThread.postTask(task)
+    }
+
+    private fun insertNewsToDb(news: ArrayList<News>) {
+        val task = Runnable { newsDb?.newsDao()?.insert(news) }
+        dbWorkerThread.postTask(task)
     }
 
     companion object {
@@ -145,6 +179,12 @@ class Main : AppCompatActivity(), AnkoLogger {
         super.onPause()
         // Start the job scheduler if application paused
         startJobScheduler(this, list)
+    }
+
+    override fun onDestroy() {
+        NewsDatabase.destroyInstance()
+        dbWorkerThread.quit()
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
