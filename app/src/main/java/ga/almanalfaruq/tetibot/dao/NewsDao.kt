@@ -14,7 +14,7 @@ import ga.almanalfaruq.tetibot.model.News
 @Dao
 interface NewsDao {
 
-    @Query("SELECT * FROM news")
+    @Query("SELECT * FROM news ORDER BY id DESC")
     fun getAll(): List<News>
 
     @Query("SELECT COUNT(*) FROM news")
