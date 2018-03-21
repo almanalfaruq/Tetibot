@@ -42,22 +42,19 @@ class Main : AppCompatActivity(), AnkoLogger {
 
         settingUpSlidingLayout()
         settingUpRecyclerView()
-
+        getNewsFromDb()
         // Refreshing the refresh layout when first time opened
         refLayout.isRefreshing = true
-
-        getNewsFromDb()
-        // Get the data from web
-        doAsync {
-            getNewsFromWebsite()
-        }
+        getNewsFromWebsite()
         // Swipe refresh code
         refLayout.setOnRefreshListener {
             getNewsFromWebsite()
         }
     }
 
-    // Setting the sliding layout
+    /**
+     * Setting the sliding layout
+     */
     private fun settingUpSlidingLayout() {
         sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
         // If the panel slide down
@@ -75,7 +72,9 @@ class Main : AppCompatActivity(), AnkoLogger {
         })
     }
 
-    // Setting the recycler view
+    /**
+     * Setting the recycler view
+     */
     private fun settingUpRecyclerView() {
         recView.layoutManager = GridLayoutManager(this, 1) as RecyclerView.LayoutManager?
         recView.adapter = CardAdapter(newsList) {
@@ -87,7 +86,9 @@ class Main : AppCompatActivity(), AnkoLogger {
         }
     }
 
-    // Get data from website
+    /**
+     * Get data from website
+     */
     private fun getNewsFromWebsite() {
         doAsync {
             list = helper.retriveNewsFromWebsite()
@@ -95,6 +96,7 @@ class Main : AppCompatActivity(), AnkoLogger {
                 if (list.size > 0) {
                     insertNewsToRecView()
                     insertNewsToDb(list)
+                    toast("Updated from website")
                 } else {
                     toast("Cannot reach to the server, try again in a few second")
                 }
@@ -172,20 +174,26 @@ class Main : AppCompatActivity(), AnkoLogger {
     }
 
     override fun onStop() {
-        super.onStop()
-        // Start the job scheduler if application stoped
+        NewsDatabase.destroyInstance()
+        dbWorkerThread.quit()
+        // Start the job scheduler if application paused
         startJobScheduler(this, list)
+        super.onStop()
     }
 
     override fun onPause() {
-        super.onPause()
+        NewsDatabase.destroyInstance()
+        dbWorkerThread.quit()
         // Start the job scheduler if application paused
         startJobScheduler(this, list)
+        super.onPause()
     }
 
     override fun onDestroy() {
         NewsDatabase.destroyInstance()
         dbWorkerThread.quit()
+        // Start the job scheduler if application paused
+        startJobScheduler(this, list)
         super.onDestroy()
     }
 
