@@ -45,7 +45,7 @@ class CardAdapter(val newsList: List<News>, val listener: (News) -> Unit) : Recy
             txtDescription.text = news.description
             txtCategory.text = news.category
             // Check if download url is empty
-            if (news.url == "") {
+            if (news.url.isBlank()) {
                 btnDownload.visibility = View.GONE
             } else {
                 btnDownload.setOnClickListener {
@@ -59,10 +59,7 @@ class CardAdapter(val newsList: List<News>, val listener: (News) -> Unit) : Recy
             }
             // Creating listener to share button
             btnShare.setOnClickListener {
-                val message = "[Info " + txtCategory.text.toString() + "]" +
-                        "\n" + txtTitle.text.toString() + "\n" +
-                        txtDate.text.toString() + "\n\n" +
-                        txtDescription.text.toString()
+                val message = getFormattedMessage(news)
                 val share = Intent(Intent.ACTION_SEND)
                 share.type = "text/plain"
                 share.putExtra(Intent.EXTRA_TEXT, message)
@@ -70,6 +67,38 @@ class CardAdapter(val newsList: List<News>, val listener: (News) -> Unit) : Recy
                 itemView.context.startActivity(Intent.createChooser(share, "Share to"))
             }
             setOnClickListener { listener(news) }
+        }
+
+        fun getFormattedMessage(news: News): String {
+            if (isDescriptionExists(news) && isUrlExists(news)) {
+                return "[Info " + news.category + "]" + "\n" +
+                        news.title + "\n" +
+                        news.date + "\n\n" +
+                        news.description + "\n" +
+                        "Link Download: " + news.url
+            } else if (isDescriptionExists(news)) {
+                return "[Info " + news.category + "]" +
+                        "\n" + news.title + "\n" +
+                        news.date + "\n\n" +
+                        news.description
+            } else if (isUrlExists(news)) {
+                return "[Info " + news.category + "]" + "\n" +
+                        news.title + "\n" +
+                        news.date + "\n\n" +
+                        "Link Download: " + news.url
+            } else {
+                return "[Info " + news.category + "]" +
+                        "\n" + news.title + "\n" +
+                        news.date
+            }
+        }
+
+        fun isDescriptionExists(news: News): Boolean {
+            return news.description.isNotBlank()
+        }
+
+        fun isUrlExists(news: News): Boolean {
+            return news.url.isNotBlank()
         }
     }
 }
