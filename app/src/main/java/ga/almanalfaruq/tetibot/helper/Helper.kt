@@ -10,7 +10,11 @@ import java.util.ArrayList
  */
 class Helper {
 
-    fun RetriveInformation(): ArrayList<News> {
+    /**
+     * Get news from DTETI's website
+     * @return list of [News] from website
+     */
+    fun retriveNewsFromWebsite(): ArrayList<News> {
         val news : ArrayList<News> = ArrayList()
         try {
             val doc = Jsoup.connect("http://sarjana.jteti.ugm.ac.id/akademik/").get()
