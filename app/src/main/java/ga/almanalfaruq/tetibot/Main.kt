@@ -11,6 +11,7 @@ import org.jetbrains.anko.*
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Handler
+import android.support.design.widget.Snackbar
 import com.firebase.jobdispatcher.*
 import ga.almanalfaruq.tetibot.adapter.CardAdapter
 import ga.almanalfaruq.tetibot.helper.DbWorkerThread
@@ -30,6 +31,7 @@ class Main : AppCompatActivity(), AnkoLogger {
     private var newsDb: NewsDatabase? = null
     private lateinit var dbWorkerThread: DbWorkerThread
     private val uiHandler = Handler()
+    private lateinit var snackbar: Snackbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,76 +42,92 @@ class Main : AppCompatActivity(), AnkoLogger {
 
         newsDb = NewsDatabase.getInstance(this)
 
-        settingUpSlidingLayout()
-        settingUpRecyclerView()
-        getNewsFromDb()
-        // Refreshing the refresh layout when first time opened
-        refLayout.isRefreshing = true
-        getNewsFromWebsite()
-        // Swipe refresh code
-        refLayout.setOnRefreshListener {
+        initializeComponent()
+
+        refresh_layout.setOnRefreshListener {
             getNewsFromWebsite()
         }
     }
 
-    /**
-     * Setting the sliding layout
-     */
+    private fun initializeComponent() {
+        settingUpSnackbar()
+        settingUpSlidingLayout()
+        settingUpRecyclerView()
+        getNewsFromDb()
+        getNewsFromWebsite()
+    }
+
+    private fun settingUpSnackbar() {
+        snackbar = Snackbar.make(parent_layout, "Data not updated", Snackbar.LENGTH_INDEFINITE)
+        snackbar.setAction("UPDATE", {
+            getNewsFromWebsite()
+        })
+    }
+
     private fun settingUpSlidingLayout() {
-        sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+        hideSlidingLayout()
         // If the panel slide down
-        sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener{
+        sliding_layout.addPanelSlideListener(object: SlidingUpPanelLayout.PanelSlideListener {
             override fun onPanelSlide(panel: View?, slideOffset: Float) {
 
             }
 
             override fun onPanelStateChanged(panel: View?, previousState: SlidingUpPanelLayout.PanelState?, newState: SlidingUpPanelLayout.PanelState?) {
                 if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
-                    sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+                    hideSlidingLayout()
                 }
             }
 
         })
     }
 
-    /**
-     * Setting the recycler view
-     */
     private fun settingUpRecyclerView() {
-        recView.layoutManager = GridLayoutManager(this, 1) as RecyclerView.LayoutManager?
-        recView.adapter = CardAdapter(newsList) {
-            txtSliderTitle.text = it.category
-            txtTitleSlide.text = it.title
-            txtDateSlide.text = it.date
-            txtDescriptionSlide.text = it.description
+        recycler_view.layoutManager = GridLayoutManager(this, 1) as RecyclerView.LayoutManager?
+        recycler_view.adapter = CardAdapter(newsList) {
+            slider_title.text = it.category
+            text_title.text = it.title
+            text_date.text = it.date
+            text_description.text = it.description
             sliding_layout.panelState = SlidingUpPanelLayout.PanelState.EXPANDED
         }
     }
 
-    /**
-     * Get data from website
-     */
     private fun getNewsFromWebsite() {
+        if (!refresh_layout.isRefreshing) {
+            refresh_layout.isRefreshing = true
+        }
         doAsync {
             list = helper.retriveNewsFromWebsite()
             uiThread {
                 if (list.size > 0) {
-                    insertNewsToRecView()
-                    insertNewsToDb(list)
-                    toast("Updated from website")
+                    showDataFromWebsite(list)
                 } else {
-                    toast("Cannot reach to the server, try again in a few second")
+                    cannotRetriveData()
                 }
             }
         }
+    }
+
+    private fun showDataFromWebsite(news: ArrayList<News>) {
+        insertNewsToRecView()
+        insertNewsToDb(news)
+        snackbar.dismiss()
+        refresh_layout.isRefreshing = false
+        toast("Updated from website")
+    }
+
+    private fun cannotRetriveData() {
+        getNewsFromDb()
+        snackbar.show()
+        refresh_layout.isRefreshing = false
+        toast("Cannot reach to the server, try again in a few second")
     }
 
     // Inserting data from website to recycler view
     private fun insertNewsToRecView() {
         newsList.clear()
         newsList.addAll(list)
-        recView.adapter.notifyDataSetChanged()
-        refLayout.isRefreshing = false
+        recycler_view.adapter.notifyDataSetChanged()
     }
 
     private fun getNewsFromDb() {
@@ -118,7 +136,6 @@ class Main : AppCompatActivity(), AnkoLogger {
             uiHandler.post({
                 if (list.isEmpty()) {
                     toast("Local data is empty, please connect to the internet to fill it")
-                    refLayout.isRefreshing = false
                 } else {
                     insertNewsToRecView()
                 }
@@ -133,7 +150,6 @@ class Main : AppCompatActivity(), AnkoLogger {
     }
 
     companion object {
-        // Starting job scheduler
         fun startJobScheduler(context: Context, tempNews: ArrayList<News>) {
             val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(context))
             val sessionManager = SessionManager(context)
@@ -144,7 +160,6 @@ class Main : AppCompatActivity(), AnkoLogger {
             dispatcher.mustSchedule(job)
         }
 
-        // Creating job scheduler with some configuration
         fun createJob(dispatcher: FirebaseJobDispatcher): Job {
             val job : Job = dispatcher.newJobBuilder()
                     // Set it's lifetime
@@ -168,23 +183,16 @@ class Main : AppCompatActivity(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
-        // Clear notification if resume the app
         val notification = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notification.cancelAll()
     }
 
     override fun onStop() {
-        NewsDatabase.destroyInstance()
-        dbWorkerThread.quit()
-        // Start the job scheduler if application paused
         startJobScheduler(this, list)
         super.onStop()
     }
 
     override fun onPause() {
-        NewsDatabase.destroyInstance()
-        dbWorkerThread.quit()
-        // Start the job scheduler if application paused
         startJobScheduler(this, list)
         super.onPause()
     }
@@ -192,18 +200,25 @@ class Main : AppCompatActivity(), AnkoLogger {
     override fun onDestroy() {
         NewsDatabase.destroyInstance()
         dbWorkerThread.quit()
-        // Start the job scheduler if application paused
         startJobScheduler(this, list)
         super.onDestroy()
     }
 
     override fun onBackPressed() {
         // If back pressed when slider is expanded, the hide the slider
-        if (sliding_layout.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-            sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+        if (isSlidingLayoutExpanded()) {
+            hideSlidingLayout()
         } else {
             super.onBackPressed()
         }
+    }
+
+    private fun isSlidingLayoutExpanded(): Boolean {
+        return sliding_layout.panelState == SlidingUpPanelLayout.PanelState.EXPANDED
+    }
+
+    private fun hideSlidingLayout() {
+        sliding_layout.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
     }
 
 }
