@@ -20,6 +20,8 @@ import org.jetbrains.anko.uiThread
 
 class UpdateService : JobService() {
 
+    private lateinit var contentIntent: PendingIntent
+
     override fun onStartJob(params: JobParameters): Boolean {
         checkUpdate(params)
         return true
@@ -35,14 +37,14 @@ class UpdateService : JobService() {
         doAsync {
             // Get the newest news from the web
             val helper = Helper()
-            val newNews = helper.RetriveInformation()
+            val newNews = helper.retriveNewsFromWebsite()
             val sessionManager = SessionManager(this@UpdateService)
             val tempNewsId = sessionManager.getOldNews().toString()
             uiThread {
                 Log.d("UpdateService", newNews.size.toString())
                 if (newNews.size > 0) {
                     if (!tempNewsId.equals(newNews[0].id, true)) {
-                        sendNotification(this@UpdateService)
+                        sendNotification()
                         sessionManager.setOldNews(newNews[0].id.toInt())
                         Log.d("UpdateService", "Not equals ID")
                     }
@@ -54,19 +56,19 @@ class UpdateService : JobService() {
     }
 
     // Send the notification to phone
-    private fun sendNotification(context: Context) {
-        val notificationIntent = Intent(context, Main::class.java)
-        val contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0)
-        val notificationMgr = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private fun sendNotification() {
+        val notificationIntent = Intent(this, Main::class.java)
+        contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+        val notificationMgr = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "channel_tetibot"
         val channelName = "Tetibot Channel"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(channelId, channelName, notificationMgr)
         }
         val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationOreo(context, channelId, contentIntent)
+            createNotificationOreo(channelId)
         } else {
-            createNotification(context, contentIntent)
+            createNotification()
         }
         notification.flags = Notification.FLAG_AUTO_CANCEL
         notificationMgr.notify(0, notification)
@@ -90,9 +92,8 @@ class UpdateService : JobService() {
 
     // Used for creating notification in API >= 26
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationOreo(context: Context, channelId: String,
-                                       contentIntent: PendingIntent): Notification {
-        return Notification.Builder(context, channelId)
+    private fun createNotificationOreo(channelId: String): Notification {
+        return Notification.Builder(this, channelId)
                 // Notification title
                 .setContentTitle("Tetibot")
                 // Notification description
@@ -105,9 +106,8 @@ class UpdateService : JobService() {
     }
 
     // Used for creating notification in API < 26
-    private fun createNotification(context: Context,
-                                   contentIntent: PendingIntent): Notification {
-        return Notification.Builder(context)
+    private fun createNotification(): Notification {
+        return Notification.Builder(this)
                 // Notification title
                 .setContentTitle("Tetibot")
                 // Notification description

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
@@ -9,29 +10,30 @@
     tools:context="ga.almanalfaruq.tetibot.Main">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/image_logo"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        app:srcCompat="@mipmap/uwong" />
+        app:srcCompat="@mipmap/uwong"
+        android:contentDescription="Logo" />
 
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
         android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
         android:gravity="bottom"
         android:layout_height="match_parent"
-        app:umanoDragView="@id/dragView"
+        app:umanoDragView="@id/drag_view"
         app:umanoOverlay="true"
         app:umanoPanelHeight="68dp"
         app:umanoParallaxOffset="100dp"
         app:umanoShadowHeight="4dp">
 
         <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/refLayout"
+            android:id="@+id/refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recView"
+                android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbars="vertical" />
@@ -39,12 +41,13 @@
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <LinearLayout
-            android:id="@+id/dragView"
+            android:id="@+id/drag_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/colorPutih"
             android:clickable="true"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -52,7 +55,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/txtSliderTitle"
+                    android:id="@+id/slider_title"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -78,7 +81,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/txtTitleSlide"
+                            android:id="@+id/text_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingEnd="10dp"
@@ -90,7 +93,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/txtDateSlide"
+                            android:id="@+id/text_date"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingBottom="5dp"
@@ -101,7 +104,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/txtDescriptionSlide"
+                            android:id="@+id/text_description"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:clickable="true"
@@ -116,6 +119,7 @@
                             android:textSize="16sp" />
 
                     </LinearLayout>
+
                 </ScrollView>
 
             </FrameLayout>
